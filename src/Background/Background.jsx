@@ -1,13 +1,15 @@
+import {observer} from 'mobx-react-lite';
 import {useContext, useEffect, useState} from 'preact/hooks';
 
 import {ConfigContext} from '/src/Common';
+import {heroAssets} from '/src/Hero/heroes';
 
 import {backgroundOptions, defaultBackgroundId} from './backgrounds';
 import './Background.css';
 
 const storageKey = 'deadmock.background.right';
 
-const Background = () => {
+const Background = observer(({state}) => {
 	const config = useContext(ConfigContext);
 	const baseUrl = config.baseUrl || '/';
 	const [selectedBackgroundId, setSelectedBackgroundId] = useState(() =>
@@ -15,6 +17,7 @@ const Background = () => {
 	);
 
 	const selectedBackground = backgroundOptions.find((x) => x.id === selectedBackgroundId) || backgroundOptions[0];
+	const selectedHero = heroAssets.find((hero) => hero.id === state.selectedHeroId) || null;
 
 	useEffect(() => {
 		window.localStorage.setItem(storageKey, selectedBackground.id);
@@ -24,27 +27,34 @@ const Background = () => {
 		);
 		document.documentElement.style.setProperty(
 			'--mock-background-side-image',
-			`url("${baseUrl}background/${selectedBackground.file}")`,
+			selectedHero
+				? `url("${baseUrl}${selectedHero.render}")`
+				: `url("${baseUrl}background/${selectedBackground.file}")`,
 		);
-	}, [baseUrl, selectedBackground]);
+	}, [baseUrl, selectedBackground, selectedHero]);
 
 	return (
-		<div className="mock-background-picker">
-			<label className="mock-background-picker-label" for="mock-background-picker-select">
-				Right-side background
-			</label>
-			<select
-				id="mock-background-picker-select"
-				className="mock-background-picker-select"
-				value={selectedBackgroundId}
-				onChange={(ev) => setSelectedBackgroundId(ev.currentTarget.value)}
-			>
-				{backgroundOptions.map((option) => (
-					<option value={option.id}>{option.label}</option>
-				))}
-			</select>
-		</div>
+		<>
+			{selectedHero && <img className="mock-hero-signature" src={`${baseUrl}${selectedHero.signature}`} alt="" />}
+			{!selectedHero && (
+				<div className="mock-background-picker">
+					<label className="mock-background-picker-label" for="mock-background-picker-select">
+						Right-side background
+					</label>
+					<select
+						id="mock-background-picker-select"
+						className="mock-background-picker-select"
+						value={selectedBackgroundId}
+						onChange={(ev) => setSelectedBackgroundId(ev.currentTarget.value)}
+					>
+						{backgroundOptions.map((option) => (
+							<option value={option.id}>{option.label}</option>
+						))}
+					</select>
+				</div>
+			)}
+		</>
 	);
-};
+});
 
 export {Background};

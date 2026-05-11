@@ -7,6 +7,7 @@ import {templates} from '/src/Serialize';
 
 class State {
   activeModel = null;
+  selectedHeroId = null;
   _modelStorage = null;
 
   constructor(modelStorage, initialRaw) {
@@ -66,6 +67,14 @@ class State {
       history.pushState({id, depth}, `Deadmock - ${name}`);
       window.scrollTo({top: 0});
     }
+  }
+
+  setSelectedHero(heroId) {
+    this.selectedHeroId = heroId;
+  }
+
+  clearSelectedHero() {
+    this.selectedHeroId = null;
   }
 
   loadRecord(key, options) {

@@ -3,7 +3,6 @@ import {render} from 'preact';
 import {Config, ConfigContext} from '/src/Common';
 import {Background} from '/src/Background/Background';
 import {PortraitGrid} from '/src/PortraitGrid/PortraitGrid';
-import {Editor} from '/src/Editor';
 import {State} from '/src/State';
 import {ModelStorage, ModelStorageContext} from '/src/Serialize';
 import {hydrate} from '/src/Serialize/compat';
@@ -47,12 +46,12 @@ document.body.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
 
 render((
   <ConfigContext.Provider value={config}>
-    <Background />
-      <PortraitGrid />
-    <ImageStorageContext.Provider value={imageStorage}>
-      <ModelStorageContext.Provider value={modelStorage}>
-        <Editor state={state} />
-      </ModelStorageContext.Provider>
-    </ImageStorageContext.Provider>
+    <Background state={state} />
+    <PortraitGrid state={state} />
+        <ImageStorageContext.Provider value={imageStorage}>
+          <ModelStorageContext.Provider value={modelStorage}>
+            {}
+          </ModelStorageContext.Provider>
+        </ImageStorageContext.Provider>
   </ConfigContext.Provider>
 ), document.getElementById('app'));

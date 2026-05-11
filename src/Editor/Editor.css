@@ -94,3 +94,17 @@
     width: 15rem;
     padding: 0.3rem;
 }
+
+/* Force-hide editor toolbar/menu and related controls when present on the page.
+   This ensures copy/save/copy link/copy text and history UI cannot be seen
+   or interacted with on this page. */
+.mock-editor-buttons,
+.mock-editor-button,
+.mock-editor-copy-text-button,
+.mock-editor-history,
+.mock-editor-history-current,
+.mock-editor-history-dropdown {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

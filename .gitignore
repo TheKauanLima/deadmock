@@ -6,3 +6,6 @@ todo.txt
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.env
+mcp-server.js
+/.gemini

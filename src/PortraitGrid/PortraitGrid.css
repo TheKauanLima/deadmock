@@ -1,24 +1,23 @@
 .portrait-grid {
   position: fixed;
-  left: 1.5rem;
+  left: 6rem;
   top: 5.5rem;
   z-index: 3;
   display: grid;
-  /* 8 columns, 5 rows of fixed portrait sizes (75x125px) */
   grid-template-columns: repeat(8, 75px);
   grid-template-rows: repeat(5, 125px);
   gap: 8px;
   padding: 6px;
-  background: transparent; /* no container background */
+  background: transparent;
   border: none;
 }
 
 .portrait-cell {
   width: 75px;
   height: 125px;
-  background: #434343; /* requested hex color for each slot */
+  background: #434343;
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 35%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,7 +25,21 @@
   position: relative;
 }
 
-.portrait-cell::after {
+.portrait-button {
+  appearance: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.portrait-button:focus-visible {
+  outline: 2px solid #aaaaaa;
+  outline-offset: 2px;
+}
+
+.portrait-filled::after,
+.portrait-plus::after {
   content: '';
   position: absolute;
   top: 0;
@@ -38,20 +51,53 @@
   z-index: 1;
 }
 
+.portrait-selected::after {
+  display: none;
+}
+
+.portrait-thumb-frame {
+  position: absolute;
+  inset: 3px;
+  overflow: hidden;
+  border-radius: 4px;
+  z-index: 0;
+}
+
 .portrait-thumb {
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  margin: 3px;
-  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-color: #43373b;
   border: none;
   border-radius: 4px;
   object-fit: cover;
+  transform: scale(1.2);
+  transform-origin: center;
   position: relative;
   z-index: 0;
 }
 
+.portrait-selected {
+  box-shadow: inset 0 0 0 2px #aaaaaa;
+}
+
 .portrait-empty {
   background: transparent;
+  box-shadow: 0 0px 0px rgb(0 0 0 / 35%);
+}
+
+.portrait-plus {
+  background: #434343;
+}
+
+.portrait-plus-sign {
+  position: relative;
+  z-index: 2;
+  font-size: 58px;
+  line-height: 1;
+  color: #f0f0f0;
+  font-family: inherit;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 900px) {

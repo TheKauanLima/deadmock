@@ -10,8 +10,7 @@ import {Item} from '/src/Item';
 import {latestVersion} from '/src/Serialize';
 import {TooltipContainer} from '/src/Tooltip';
 
-import {CopyTextButton} from './CopyTextButton';
-import {EditorHistory} from './EditorHistory';
+// toolbar buttons removed per user request
 import './Editor.css';
 
 const classBlacklist = [
@@ -135,15 +134,7 @@ const Editor = observer(({state}) => {
 
   return (
     <div className="mock-editor">
-      <div className="mock-editor-buttons">
-        {renderCopyImageButton(onCopyImage)}
-        <div className="mock-editor-button" onClick={onSaveImage}>
-          Save
-        </div>
-        {category === 'hero' ? null : copyLinkButton}
-        <CopyTextButton model={state.activeModel} />
-        <EditorHistory state={state} />
-      </div>
+      {/* Editor toolbar removed — actions provided elsewhere */}
       <div ref={contentRef} className="mock-editor-content">
         {renderActive()}
       </div>

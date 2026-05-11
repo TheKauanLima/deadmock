@@ -1,5 +1,6 @@
 import {allIconFiles} from '/src/Icon';
 import {backgroundOptions} from '/src/Background/backgrounds';
+import {heroAssets} from '/src/Hero/heroes';
 
 const remaining = [...allIconFiles];
 const parallel = 10;
@@ -25,4 +26,10 @@ const preloadBackground = (path) => {
 preloadBackground('temp_background_environment_png2.png');
 for (const {file} of backgroundOptions) {
   preloadBackground(`background/${file}`);
+}
+
+for (const hero of heroAssets) {
+  preloadBackground(hero.portrait);
+  preloadBackground(hero.render);
+  preloadBackground(hero.signature);
 }
