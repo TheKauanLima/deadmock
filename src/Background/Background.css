@@ -1,0 +1,40 @@
+.mock-background-picker {
+	position: fixed;
+	right: 0.75rem;
+	bottom: 4.5rem;
+	z-index: 4;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 0.5rem 0.6rem;
+	max-width: min(18rem, calc(100vw - 1.5rem));
+	font-family: Roboto, sans-serif;
+	font-size: 0.65rem;
+	color: #ffe8c7;
+	background: rgb(18 12 10 / 72%);
+	border: 0.1rem solid rgb(0 0 0 / 55%);
+	border-radius: 0.5rem;
+	backdrop-filter: blur(0.25rem);
+	box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 30%);
+}
+
+.mock-background-picker-label {
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	opacity: 0.8;
+}
+
+.mock-background-picker-select {
+	font: inherit;
+	color: inherit;
+	background: #2c211d;
+	border: 0.1rem solid rgb(255 255 255 / 15%);
+	border-radius: 0.35rem;
+	padding: 0.35rem 0.45rem;
+	outline: none;
+}
+
+.mock-background-picker-select:focus {
+	border-color: rgb(255 223 173 / 80%);
+	box-shadow: 0 0 0 0.1rem rgb(255 223 173 / 20%);
+}

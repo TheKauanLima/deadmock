@@ -215,6 +215,8 @@
     text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+	--mock-background-base-image: url("/deadmock/temp_background_environment_png2.png");
+	--mock-background-side-image: url("/deadmock/background/Abrams_select_background.png");
 }
 
 @media (width <= 700px) {
@@ -263,24 +265,38 @@ div, span {
 }
 
 .background {
-    z-index: -1;
+	z-index: 0;
     position: fixed;
-    width: 100vw;
-    height: 100vh;
-    background-color: #3d322e;
-    background-image: url("/deadmock/background.jpg");
-    background-position: center;
+    inset: 0;
+    pointer-events: none;
+    isolation: isolate;
+}
+
+.background::before,
+.background::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
     background-repeat: no-repeat;
-    filter: blur(0.3rem) saturate(60%) contrast(80%);
-    transform: scale(1.1);
+}
 
-    @media (aspect-ratio >= 16/9) {
-        background-size: 100% auto;
-    }
+.background::before {
+    z-index: 0;
+    background-color: #3d322e;
+    background-image: var(--mock-background-base-image);
+    background-position: center;
+    background-size: 100% 100%;
+}
 
-    @media (aspect-ratio < 16/9) {
-        background-size: auto 100%;
-    }
+.background::after {
+    z-index: 1;
+    left: 0;
+    right: 0;
+    background-image: var(--mock-background-side-image);
+    background-position: right center;
+    background-size: contain;
+    opacity: 0.98;
 }
 
 .github-link {
