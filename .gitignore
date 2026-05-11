@@ -9,3 +9,4 @@ todo.txt
 .env
 mcp-server.js
 /.gemini
+/.agents

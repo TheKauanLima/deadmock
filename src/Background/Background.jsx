@@ -5,6 +5,7 @@ import {ConfigContext} from '/src/Common';
 import {heroAssets} from '/src/Hero/heroes';
 
 import {backgroundOptions, defaultBackgroundId} from './backgrounds';
+import {HeroInfoCluster} from './HeroInfoCluster';
 import './Background.css';
 
 const storageKey = 'deadmock.background.right';
@@ -35,7 +36,7 @@ const Background = observer(({state}) => {
 
 	return (
 		<>
-			{selectedHero && <img className="mock-hero-signature" src={`${baseUrl}${selectedHero.signature}`} alt="" />}
+			{selectedHero && <HeroInfoCluster hero={selectedHero} baseUrl={baseUrl} />}
 			{!selectedHero && (
 				<div className="mock-background-picker">
 					<label className="mock-background-picker-label" for="mock-background-picker-select">

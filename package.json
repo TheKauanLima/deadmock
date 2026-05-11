@@ -15,6 +15,8 @@
     "mcp": "node mcp-server.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.4",
     "classnames": "^2.5.1",
     "file-saver": "^2.0.5",
     "html-to-image": "^1.11.11",

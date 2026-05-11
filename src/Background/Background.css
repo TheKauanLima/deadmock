@@ -38,3 +38,155 @@
 	border-color: rgb(255 223 173 / 80%);
 	box-shadow: 0 0 0 0.1rem rgb(255 223 173 / 20%);
 }
+
+.mock-hero-info-cluster {
+	position: fixed;
+	right: 5rem;
+	bottom: 2rem;
+	z-index: 3;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.38rem;
+	width: min(24rem, 30vw);
+	max-width: calc(100vw - 1.5rem);
+	pointer-events: none;
+	user-select: none;
+}
+
+.mock-hero-info-cluster .mock-hero-signature {
+	position: relative;
+	display: block;
+	align-self: center;
+	width: min(20rem, 25vw);
+	max-width: calc(100vw - 2rem);
+	aspect-ratio: 3.7 / 1;
+	margin-right: 0;
+	margin-bottom: 1rem;
+	background-color: var(--mock-hero-signature-color, #ffffff);
+	-webkit-mask-image: var(--mock-hero-signature-image);
+	mask-image: var(--mock-hero-signature-image);
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	mask-position: center;
+	pointer-events: none;
+	user-select: none;
+	transform: none;
+}
+
+.mock-hero-info-rectangles {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 0.45rem;
+	margin-right: 0;
+    margin-bottom: 2rem;
+	flex-wrap: nowrap;
+}
+
+.mock-hero-info-rectangle {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: fit-content;
+	max-width: 100%;
+	padding: 0.28rem 0.7rem 0.26rem 0.68rem;
+	color: var(--mock-hero-text-color, rgb(16 14 12 / 92%));
+	background: var(--mock-hero-rectangle-color, var(--mock-hero-accent));
+	border: 0.08rem solid rgb(0 0 0 / 30%);
+	box-shadow: 0 0.18rem 0.45rem rgb(0 0 0 / 25%);
+	transform: rotate(var(--mock-rect-rotation));
+	transform-origin: center center;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.mock-hero-info-rectangle::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	opacity: 0.75;
+	mix-blend-mode: soft-light;
+	pointer-events: none;
+}
+
+.mock-hero-info-rectangle span {
+	position: relative;
+	z-index: 1;
+	display: block;
+	font-family: ValvePulp, sans-serif;
+	font-size: 1.1rem;
+	line-height: 1;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+	transform: none;
+	white-space: nowrap;
+}
+
+.mock-hero-info-circles {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	margin-right: 0;
+}
+
+.mock-hero-info-circle {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 50%;
+	background: var(--mock-hero-circle-color, var(--mock-hero-accent));
+	box-shadow: 0 0.16rem 0.55rem rgb(0 0 0 / 30%);
+	overflow: hidden;
+}
+
+.mock-hero-info-circle::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	opacity: 0.45;
+	mix-blend-mode: soft-light;
+	pointer-events: none;
+}
+
+.mock-hero-info-circle svg {
+	position: relative;
+	z-index: 1;
+	width: 1rem;
+	height: 1rem;
+	color: rgb(18 14 12 / 94%);
+	fill: currentColor;
+	stroke: currentColor;
+	stroke-width: 0.16rem;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.mock-hero-info-circle-image {
+	position: absolute;
+	inset: 50%;
+	transform: translate(-50%, -50%);
+	width: 68%;
+	height: 68%;
+	background-color: var(--mock-hero-icon-color, #5a6b7f);
+	-webkit-mask-image: var(--mock-hero-icon-image);
+	mask-image: var(--mock-hero-icon-image);
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	mask-position: center;
+	pointer-events: none;
+	user-select: none;
+}
+

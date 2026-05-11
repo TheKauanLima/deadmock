@@ -28,7 +28,7 @@ const heroAssets = [
 	{id: 'Seven', label: 'Seven', portrait: 'portrait/Seven_card.png', render: 'render/Seven_Render.png', signature: 'signature/Seven_name.png'},
 	{id: 'Shiv', label: 'Shiv', portrait: 'portrait/Shiv_card.png', render: 'render/Shiv_Render.png', signature: 'signature/Shiv_name.png'},
 	{id: 'Silver', label: 'Silver', portrait: 'portrait/Silver_card.png', render: 'render/Silver_Render.png', signature: 'signature/Silver_name.png'},
-	{id: 'Sinclair', label: 'Sinclair', portrait: 'portrait/Sinclair_card.png', render: 'render/Sinclair_card(1).png', signature: 'signature/Sinclair_name.png'},
+	{id: 'Sinclair', label: 'Sinclair', portrait: 'portrait/Sinclair_card.png', render: 'render/Sinclair_Render.png', signature: 'signature/Sinclair_name.png'},
 	{id: 'Venator', label: 'Venator', portrait: 'portrait/Venator_card.png', render: 'render/Venator_Render.png', signature: 'signature/Venator_name.png'},
 	{id: 'Victor', label: 'Victor', portrait: 'portrait/Victor_card.png', render: 'render/Victor_Render.png', signature: 'signature/Victor_name.png'},
 	{id: 'Vindicta', label: 'Vindicta', portrait: 'portrait/Vindicta_card.png', render: 'render/Vindicta_Render.png', signature: 'signature/Vindicta_name.png'},
