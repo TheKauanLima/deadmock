@@ -3,6 +3,7 @@ import {useContext, useEffect, useState} from 'preact/hooks';
 
 import {ConfigContext} from '/src/Common';
 import {fetchHero} from '/src/services/canonicalHeroService';
+import {WeaponPanel} from '/src/WeaponPanel';
 
 import {backgroundOptions, defaultBackgroundId} from './backgrounds';
 import {HeroInfoCluster} from './HeroInfoCluster';
@@ -17,6 +18,7 @@ const Background = observer(({state}) => {
 	const baseUrl = config.baseUrl || '/';
 	const [heroClusterTheme, setHeroClusterTheme] = useState(null);
 	const [selectedHero, setSelectedHero] = useState(null);
+	const [selectedSidebarTab, setSelectedSidebarTab] = useState('stats');
 	const [selectedBackgroundId, setSelectedBackgroundId] = useState(() =>
 		window.localStorage.getItem(storageKey) || defaultBackgroundId,
 	);
@@ -73,14 +75,44 @@ const Background = observer(({state}) => {
 	return (
 		<>
 			<SidebarTabs
+				defaultActiveId="stats"
 				tabs={[
 					{ id: 'weapon', label: 'Weapon', icon: `${baseUrl}icon/weapon.png` },
 					{ id: 'portrait', label: 'Portrait', icon: `${baseUrl}icon/vitality.png` },
 					{ id: 'signature', label: 'Signature', icon: `${baseUrl}icon/spirit.png` },
 					{ id: 'stats', label: 'Stats', icon: `${baseUrl}icon/stat/placeholder.png` },
 				]}
-				onSelect={(id) => console.log('tab selected', id)}
+				onSelect={(id) => setSelectedSidebarTab(id)}
 			/>
+			{selectedSidebarTab === 'weapon' && (
+				<div className="mock-weapon-stats-panel">
+					<WeaponPanel
+						weaponName="Plasma Rifle"
+						weaponDesc="A high-tech energy weapon with controlled recoil and strong range."
+						secondaryWeaponDesc="Alt fire: Charged burst"
+						gunImageSrc={`${baseUrl}panorama/images/heroes/guns/generic_gun_psd.png`}
+						weaponAttributes={['Full Auto', 'Hitscan']}
+						bulletDPS={105}
+						weaponMinRange={10}
+						weaponMaxRange={40}
+						initialStats={[
+							{ label: 'Damage', value: 42 },
+							{ label: 'Fire Rate', value: 2.5, hasScaling: true },
+							{ label: 'Crit Chance', value: 0, isZero: true },
+						]}
+						secondaryStats={[
+							{ label: 'Charge Time', value: '0.8s' },
+							{ label: 'Burst Count', value: 3 },
+						]}
+						otherStats={[
+							{ label: 'Reload', value: '1.6s' },
+							{ label: 'Ammo', value: 24 },
+						]}
+						showSecondaryWeapon={true}
+						panelType="weapon"
+					/>
+				</div>
+			)}
 			{selectedHero && <HeroInfoCluster hero={selectedHero} theme={heroClusterTheme} baseUrl={baseUrl} />}
 			{!selectedHero && (
 				<div className="mock-background-picker">

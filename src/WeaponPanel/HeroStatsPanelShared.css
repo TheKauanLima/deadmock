@@ -1,0 +1,236 @@
+.statsContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.WeaponName {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.heroStatsDisplay {
+    width: 520px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+.statAttributeContainer {
+    width: 80px;
+    height: 40px;
+    margin: 2px;
+    padding: 0px 0px 0px 10px;
+    background-color: rgba(0, 0, 0, 0.44);
+    border-radius: 3px;
+}
+
+.statAttributeContainer:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.isZeroValue.statAttributeContainer:hover {
+    background-color: rgba(0, 0, 0, 0.44);
+}
+
+.displayStatsContainer .statAttributeContainer {
+    width: 48%;
+}
+
+.isZeroValue.statAttributeContainer {
+    opacity: 0.5;
+}
+
+.HasScalingStat .statAttributeContainer {
+    border: 2px solid rgba(138, 85, 179, 0.25);
+    background-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.5) 0%, rgba(97, 52, 132, 0.31) 100%);
+}
+
+.statAttributeContainer .CitadelModifiedAttributeLabel {
+    vertical-align: center;
+    width: 100%;
+    height: 24px;
+}
+
+.otherStats,
+#SpiritImpactContainer {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.statTitle {
+    font-size: 18px;
+    text-transform: uppercase;
+    font-family: Reaver, serif;
+    font-weight: 600;
+    opacity: 0.6;
+    margin-bottom: 0px;
+}
+
+.displayStatsContainer {
+    padding: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.weaponDesc {
+    font-family: Deadlock, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.92;
+    margin-bottom: 10px;
+    margin-top: -2px;
+}
+
+.WeaponStatsDisplay {
+    padding: 14px 16px 0 16px;
+    background-color: rgba(0, 0, 0, 0.18);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+}
+
+.weaponStatsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 0;
+}
+
+.weaponStatsRow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+}
+
+.weaponStatsRow--final {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-top: 8px;
+    padding: 16px 16px;
+    border-radius: 0 0 12px 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+.weaponStatCell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.2);
+    font-family: Deadlock, sans-serif;
+    overflow: hidden;
+}
+
+.weaponStatsRow--final .weaponStatCell {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.weaponStatIcon {
+    width: 13px;
+    height: 13px;
+    flex: 0 0 auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.weaponStatIcon--bullet {
+    background-image: url('/panorama/images/icons/properties/damage_bullet_color.svg');
+}
+
+.weaponStatIcon--fireRate {
+    background-image: url('/panorama/images/icons/properties/fire_rate.svg');
+}
+
+.weaponStatIcon--melee {
+    background-image: url('/panorama/images/icons/properties/damage_bullet_color.svg');
+    opacity: 0.9;
+}
+
+.weaponStatIcon--dot {
+    border-radius: 50%;
+    background-image: none;
+    background-color: rgba(255, 145, 0, 0.85);
+}
+
+.weaponStatText {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+    width: 100%;
+    font-family: Deadlock, sans-serif;
+    white-space: nowrap;
+}
+
+.weaponStatValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--baseText);
+}
+
+.weaponStatUnit {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.weaponStatLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 239, 215, 0.95);
+}
+
+.NoWeaponDesc .weaponDesc {
+    display: none;
+}
+
+#BackgroundContainer {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-size: cover;
+}
+
+.CitadelHeroStatsWeapon #BackgroundContainer {
+    background-image: url('/panorama/images/shop/catalog/catalog_tooltip_bg_modifies_weapon_psd.png');
+    /* background-image: linear-gradient(90deg, #493516 0%, #271904 100%), url('/panorama/images/shop/catalog/catalog_tooltip_bg_modifies_weapon_psd.png'); */
+}
+
+.CitadelHeroStatsArmor #BackgroundContainer {
+    background-image: linear-gradient(90deg, #375B3B 0%, #072F0B 100%), url('/panorama/images/shop/catalog/catalog_tooltip_bg_modifies_vitality_psd.png');
+}
+
+.CitadelHeroStatsTech #BackgroundContainer {
+    background-image: linear-gradient(90deg, #653A6D 0%, #452456 100%), url('/panorama/images/shop/catalog/catalog_tooltip_bg_modifies_spirit_psd.png');
+}
+
+#ArmorOtherStatsDisplay {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+CitadelHeroDetailsPage #StatContainer_BaseWeaponDamage,
+CitadelHeroDetailsPage #StatContainer_ClipSizeIncrease,
+CitadelHeroDetailsPage #StatContainer_ReloadSpeed,
+CitadelHeroDetailsPage #StatContainer_BulletSpeedIncrease,
+CitadelHeroDetailsPage #StatContainer_BulletLifesteal,
+CitadelHeroDetailsPage #StatContainer_HealingOutput,
+CitadelHeroDetailsPage #StatContainer_OutOfCombatHealthRegen,
+CitadelHeroDetailsPage #StatContainer_MeleeResist,
+CitadelHeroDetailsPage #StatContainer_DebuffResist,
+CitadelHeroDetailsPage #StatContainer_StaminaRegenIncrease {
+    display: none;
+}

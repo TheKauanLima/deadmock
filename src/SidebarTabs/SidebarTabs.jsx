@@ -1,8 +1,8 @@
 import {useState} from 'preact/hooks';
 import './SidebarTabs.css';
 
-const SidebarTabs = ({tabs = [], onSelect}) => {
-  const [active, setActive] = useState(tabs[0]?.id || null);
+const SidebarTabs = ({tabs = [], onSelect, defaultActiveId = null}) => {
+  const [active, setActive] = useState(defaultActiveId || tabs[0]?.id || null);
 
   const handleClick = (id) => {
     setActive(id);
