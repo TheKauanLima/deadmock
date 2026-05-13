@@ -1,0 +1,131 @@
+.mock-login-screen {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 2rem;
+	background:
+		radial-gradient(circle at top left, rgba(38, 126, 163, 0.35), transparent 34%),
+		radial-gradient(circle at bottom right, rgba(180, 116, 34, 0.3), transparent 30%),
+		linear-gradient(135deg, #0f151b, #1b1010 55%, #120f15);
+}
+
+.mock-login-panel {
+	width: min(920px, 100%);
+	display: grid;
+	grid-template-columns: 1.1fr 0.9fr;
+	gap: 1.5rem;
+	padding: 2rem;
+	border: 1px solid rgba(255, 239, 215, 0.14);
+	border-radius: 24px;
+	background: rgba(9, 13, 18, 0.82);
+	backdrop-filter: blur(14px);
+	box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.mock-login-copy h1 {
+	margin: 0 0 1rem;
+	font-family: Radiance, sans-serif;
+	font-size: clamp(2rem, 4vw, 3.5rem);
+	line-height: 0.95;
+}
+
+.mock-login-copy p {
+	margin: 0;
+	max-width: 32rem;
+	font-family: Roboto, sans-serif;
+	line-height: 1.45;
+	color: rgba(255, 239, 215, 0.78);
+}
+
+.mock-login-kicker {
+	margin: 0 0 0.75rem;
+	font-family: ValvePulp, sans-serif;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: #d0a65b;
+}
+
+.mock-login-form {
+	display: grid;
+	gap: 1rem;
+	align-content: center;
+	padding: 1.25rem;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 239, 215, 0.08);
+}
+
+.mock-login-form label {
+	display: grid;
+	gap: 0.35rem;
+	font-family: Roboto, sans-serif;
+	font-size: 0.9rem;
+	color: rgba(255, 239, 215, 0.82);
+}
+
+.mock-login-form input {
+	appearance: none;
+	border: 1px solid rgba(255, 239, 215, 0.14);
+	border-radius: 14px;
+	padding: 0.9rem 1rem;
+	font: inherit;
+	color: #ffefd7;
+	background: rgba(7, 10, 14, 0.88);
+	outline: none;
+}
+
+.mock-login-form input:focus {
+	border-color: rgba(255, 214, 155, 0.7);
+	box-shadow: 0 0 0 3px rgba(255, 214, 155, 0.15);
+}
+
+.mock-login-submit,
+.mock-login-toggle {
+	border: 0;
+	border-radius: 14px;
+	padding: 0.95rem 1rem;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.mock-login-submit {
+	background: linear-gradient(135deg, #e2b35f, #a86927);
+	color: #140d07;
+}
+
+.mock-login-toggle {
+	background: transparent;
+	color: rgba(255, 239, 215, 0.88);
+	border: 1px solid rgba(255, 239, 215, 0.14);
+}
+
+.mock-login-actions {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+.mock-login-submit:disabled,
+.mock-login-toggle:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.mock-login-message {
+	margin: 0;
+	font-family: Roboto, sans-serif;
+	font-size: 0.88rem;
+	line-height: 1.4;
+	color: #ffd5a5;
+}
+
+@media (max-width: 840px) {
+	.mock-login-panel {
+		grid-template-columns: 1fr;
+	}
+
+	.mock-login-actions {
+		grid-template-columns: 1fr;
+	}
+}

@@ -1,0 +1,60 @@
+.mock-sidebar-tabs {
+  position: fixed;
+  right: -40px;
+  top: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1200;
+}
+
+.mock-sidebar-tab {
+  width: 90px;
+  height: 4%;
+  border-radius: 28px;
+  border: none;
+  background: rgba(255, 239, 214, 0.4); /* #ffefd6 at 40% */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 120ms ease, transform 120ms ease, opacity 120ms ease;
+  cursor: pointer;
+}
+
+.mock-sidebar-tab:hover {
+  transform: translateX(-3px);
+}
+
+.mock-sidebar-tab.active {
+  background: rgba(255, 239, 214, 1); /* opaque */
+  transform: none;
+}
+
+.mock-tab-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* Render icons as black and translucent when inactive; fully opaque on hover/active */
+.mock-tab-icon {
+  filter: brightness(0) saturate(100%);
+  opacity: 0.5;
+  margin-right: 36px;
+  transition: opacity 120ms ease, transform 120ms ease, filter 120ms ease;
+}
+
+.mock-sidebar-tab:hover .mock-tab-icon,
+.mock-sidebar-tab.active .mock-tab-icon,
+.mock-sidebar-tab:focus .mock-tab-icon {
+  opacity: 1;
+}
+
+.mock-tab-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background: #061d27;
+}

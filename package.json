@@ -6,6 +6,7 @@
     "lint": "eslint src",
     "stylelint": "stylelint src/**/*.css",
     "dev": "vite",
+    "server": "node server/server.js",
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
@@ -17,12 +18,23 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "classnames": "^2.5.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
     "file-saver": "^2.0.5",
     "html-to-image": "^1.11.11",
     "idb-keyval": "^6.2.1",
+    "jsonwebtoken": "^9.0.2",
     "mobx-react-lite": "^4.0.7",
-    "preact": "^10.22.1"
+    "pg": "^8.13.1",
+    "preact": "^10.22.1",
+    "resend": "^4.0.0",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

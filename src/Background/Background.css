@@ -39,6 +39,16 @@
 	box-shadow: 0 0 0 0.1rem rgb(255 223 173 / 20%);
 }
 
+.mock-weapon-stats-panel {
+	position: fixed;
+	right: 0.75rem;
+	bottom: 4.5rem;
+	z-index: 4;
+	width: min(26rem, calc(100vw - 1.5rem));
+	max-width: calc(100vw - 1.5rem);
+	font-family: Roboto, sans-serif;
+}
+
 .mock-hero-info-cluster {
 	position: fixed;
 	right: 5rem;
