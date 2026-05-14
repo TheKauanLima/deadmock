@@ -399,3 +399,28 @@ app.use((error, _req, res, _next) => {
 app.listen(port, () => {
 	console.log(`Deadmock auth server running on http://localhost:${port}`);
 });
+
+app.get('/api/heroes/:heroId/weapon-stats', async (req, res, next) => {
+	try {
+		const {heroId} = req.params;
+		const {rows} = await pool.query(`
+			select
+				h.id as hero_id,
+				ws.*
+			from heroes h
+			left join hero_weapon_stats ws on ws.hero_id = h.id
+			where h.name = $1
+			limit 1
+		`, [heroId]);
+
+		if (rows.length === 0) {
+			throw Object.assign(new Error('Hero not found.'), {status: 404, code: 'HERO_NOT_FOUND'});
+		}
+
+		// If no weapon row exists the joined columns will be null; return null to indicate absence
+		const weaponRow = rows[0].hero_id && rows[0].weapon_name == null ? null : rows[0];
+		res.json(weaponRow);
+	} catch (error) {
+		next(error);
+	}
+});

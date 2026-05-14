@@ -1,0 +1,236 @@
+.HeroStatsVitalityPanel {
+    position: relative;
+    padding-top: 0;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.HeroStatsVitalityPanel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgb(255 255 255 / 2%) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 2%) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.HeroStatsVitalityPanel__header {
+  position: relative;
+  z-index: 1;
+  padding: 14px 16px 6px;
+}
+
+.HeroStatsVitalityPanel__title {
+  display: block;
+  font-family: Reaver, serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+.HeroStatsVitalityPanel__gridSection {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px 14px;
+}
+
+.HeroStatsVitalityPanel__bottomSection {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+  margin: 2px 0 0;
+  overflow: hidden;
+  border-radius: 0 0 12px 12px;
+}
+
+.HeroStatsVitalityPanel__bottomSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.HeroStatsVitalityPanel__bottomSection > * {
+  position: relative;
+  z-index: 1;
+}
+
+.HeroStatsVitalityPanel__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.vitalityStatCell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.vitalityStatIcon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.vitalityStatIcon--max_health {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/health.svg');
+  mask-image: url('/panorama/images/icons/properties/health.svg');
+}
+
+.vitalityStatIcon--health_regen {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/health_regen.svg');
+  mask-image: url('/panorama/images/icons/properties/health_regen.svg');
+}
+
+.vitalityStatIcon--heal_amp {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/healing_booster.svg');
+  mask-image: url('/panorama/images/icons/properties/healing_booster.svg');
+}
+
+.vitalityStatIcon--bullet_resist {
+  background-image: url('/panorama/images/icons/properties/resist_bullet_color.svg');
+}
+
+.vitalityStatIcon--spirit_resist {
+  background-image: url('/panorama/images/icons/properties/resist_spirit_color.svg');
+}
+
+.vitalityStatIcon--melee_resist {
+  background-image: url('/panorama/images/icons/properties/resist_melee_color.svg');
+}
+
+.vitalityStatIcon--debuff_resist {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/debuff_remove.svg');
+  mask-image: url('/panorama/images/icons/properties/debuff_remove.svg');
+}
+
+.vitalityStatIcon--crit_reduction {
+  background-image: url('/panorama/images/icons/properties/damage_crit_color.svg');
+}
+
+.vitalityStatIcon--move_speed {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/move_speed.svg');
+  mask-image: url('/panorama/images/icons/properties/move_speed.svg');
+}
+
+.vitalityStatIcon--move_sprint {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/move_sprint.svg');
+  mask-image: url('/panorama/images/icons/properties/move_sprint.svg');
+}
+
+.vitalityStatIcon--stamina_recovery {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/move_stamina_recharge.svg');
+  mask-image: url('/panorama/images/icons/properties/move_stamina_recharge.svg');
+}
+
+.vitalityStatIcon--stamina {
+  background-image: none;
+  background-color: #00FF99;
+  -webkit-mask-image: url('/panorama/images/icons/properties/move_stamina.svg');
+  mask-image: url('/panorama/images/icons/properties/move_stamina.svg');
+}
+
+.vitalityStatText {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.vitalityStatValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f3f7ef;
+}
+
+.vitalityStatUnit {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(243, 247, 239, 0.62);
+}
+
+.vitalityStatLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(243, 247, 239, 0.9);
+}
+
+.HeroStatsVitalityPanel .HeroStatsVitalityPanel__bottomSection {
+  background: transparent;
+  border-top-color: transparent;
+}
+
+.HeroStatsVitalityPanel .HeroStatsVitalityPanel__bottomSection .vitalityStatCell {
+  background-color: transparent;
+}
+
+.HeroStatsVitalityPanel .HeroStatsVitalityPanel__bottomSection .vitalityStatCell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #000000;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+.HeroStatsVitalityPanel .HeroStatsVitalityPanel__bottomSection .vitalityStatCell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vitalityStatText,
+.vitalityStatValue,
+.vitalityStatUnit,
+.vitalityStatLabel {
+  font-family: Deadlock, sans-serif;
+}
+
+@media (max-width: 900px) {
+  .HeroStatsVitalityPanel__row {
+    grid-template-columns: 1fr;
+  }
+}

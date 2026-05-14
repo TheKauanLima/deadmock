@@ -170,13 +170,17 @@
 
 .weaponNameAndAttributes {
     width: 100%;
-    padding: 15px;
+    padding: 5px 15px 15px;
     box-sizing: border-box;
 }
 
 .WeaponName {
     font-family: Deadlock, sans-serif;
     font-weight: 600;
+}
+
+.statTitle {
+    margin-top: 5px;
 }
 
 #WeaponAttributesContainer {
