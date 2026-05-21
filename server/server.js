@@ -75,6 +75,63 @@ const parseBearerToken = (req) => {
 	return header.startsWith('Bearer ') ? header.slice(7) : null;
 };
 
+const allowedHeroVisibilities = new Set(['public', 'private']);
+
+const normalizeHeroVisibility = (value) => {
+	const visibility = String(value || 'public').trim().toLowerCase();
+	if (!allowedHeroVisibilities.has(visibility)) {
+		throw Object.assign(new Error('Invalid hero visibility.'), {status: 400, code: 'INVALID_VISIBILITY'});
+	}
+
+	return visibility;
+};
+
+const slugifyHeroFolder = (value) => String(value || 'custom_hero')
+	.toLowerCase()
+	.replace(/[^a-z0-9]+/g, '_')
+	.replace(/^_+|_+$/g, '') || 'custom_hero';
+
+const encodeHeroSignature = ({signatureType, signatureValue}) => {
+	const value = String(signatureValue || '').trim();
+	if (!value) {
+		return null;
+	}
+
+	return signatureType === 'text' ? `text:${value}` : value;
+};
+
+const normalizeTextList = (values, fallback) => Array.from({length: 3}, (_, index) => {
+	const value = String(values?.[index] ?? '').trim();
+	return value || fallback[index];
+});
+
+const normalizeAbilityIcons = (values) => Array.from({length: 4}, (_, index) => {
+	const value = String(values?.[index] ?? '').trim();
+	return value || null;
+});
+
+const mapHeroRow = (hero) => ({
+	id: hero.hero_id,
+	label: hero.display_label,
+	name: hero.name,
+	ownerId: hero.owner_id,
+	visibility: hero.visibility,
+	heroPortrait: hero.hero_portrait_path,
+	heroRender: hero.hero_render_path,
+	heroBg: hero.hero_bg_path,
+	heroName: hero.hero_name_path,
+	theme: {
+		heroFolder: hero.hero_folder,
+		signatureColor: hero.signature_color,
+		rectangleColor: hero.rectangle_color,
+		textLabels: hero.text_labels,
+		textColor: hero.text_color,
+		abilityColor: hero.ability_color,
+		circleColor: hero.circle_color,
+		abilityIcons: hero.ability_icons,
+	},
+});
+
 const resolveUserFromAccessToken = async (token) => {
 	const decoded = jwt.verify(token, accessSecret);
 	const {rows} = await pool.query('select * from users where id = $1', [decoded.sub]);
@@ -129,6 +186,37 @@ const sendVerificationLink = async (user) => {
 const sendResetLink = async (user) => {
 	const resetUrl = `${appUrl}/?reset_token=${encodeURIComponent(user.reset_token)}`;
 	await sendPasswordResetEmail({to: user.email, resetUrl});
+};
+
+const buildCustomHeroAssetRow = async (client, heroId, heroFolder, heroNamePath, displayLabel) => {
+	const {rows} = await client.query('select coalesce(max(sort_order), 0) + 1 as next_sort_order from hero_assets');
+	const nextSortOrder = Number(rows[0]?.next_sort_order || 1);
+
+	const assetRow = {
+		hero_id: heroId,
+		display_label: displayLabel,
+		sort_order: nextSortOrder,
+		hero_portrait_path: 'panorama/images/heroes/abrams.png',
+		hero_render_path: 'render/Abrams_Render.png',
+		hero_name_path: heroNamePath,
+		hero_bg_path: `panorama/images/heroes/backgrounds/${heroFolder}_bg_psd.png`,
+	};
+
+	await client.query(
+		`insert into hero_assets (hero_id, display_label, sort_order, hero_portrait_path, hero_render_path, hero_name_path, hero_bg_path)
+		 values ($1, $2, $3, $4, $5, $6, $7)
+		 on conflict (hero_id) do update
+		 set display_label = excluded.display_label,
+		     sort_order = excluded.sort_order,
+		     hero_portrait_path = excluded.hero_portrait_path,
+		     hero_render_path = excluded.hero_render_path,
+		     hero_name_path = excluded.hero_name_path,
+		     hero_bg_path = excluded.hero_bg_path,
+		     updated_at = now()`,
+		[assetRow.hero_id, assetRow.display_label, assetRow.sort_order, assetRow.hero_portrait_path, assetRow.hero_render_path, assetRow.hero_name_path, assetRow.hero_bg_path],
+	);
+
+	return assetRow;
 };
 
 const upsertUnverifiedUser = async (client, {email, passwordHash, verificationToken, verificationExpiresAt}) => {
@@ -333,19 +421,19 @@ app.post('/api/auth/revoke-sessions', async (req, res, next) => {
 	}
 });
 
-app.get('/api/heroes/:heroId', async (req, res, next) => {
+app.get('/api/heroes', async (_req, res, next) => {
 	try {
-		const {heroId} = req.params;
 		const {rows} = await pool.query(`
 			select
 				h.id as hero_id,
 				h.name,
 				h.owner_id,
 				h.visibility,
-				c.display_label,
-				c.portrait_path,
-				c.render_path,
-				c.signature_path,
+				a.display_label,
+				a.hero_portrait_path,
+				a.hero_render_path,
+				a.hero_bg_path,
+				a.hero_name_path,
 				t.hero_folder,
 				t.signature_color,
 				t.rectangle_color,
@@ -355,7 +443,61 @@ app.get('/api/heroes/:heroId', async (req, res, next) => {
 				t.circle_color,
 				t.ability_icons
 			from heroes h
-			join hero_catalog c on c.hero_id = h.id
+			join hero_assets a on a.hero_id = h.id
+			left join hero_cluster_themes t on t.hero_id = h.id
+			order by a.sort_order asc, a.display_label asc
+		`);
+
+		res.json(rows.map(row => ({
+			id: row.hero_id,
+			label: row.display_label,
+			name: row.name,
+			ownerId: row.owner_id,
+			visibility: row.visibility,
+			heroPortrait: row.hero_portrait_path,
+			heroRender: row.hero_render_path,
+			heroBg: row.hero_bg_path,
+			heroName: row.hero_name_path,
+			theme: {
+				heroFolder: row.hero_folder,
+				signatureColor: row.signature_color,
+				rectangleColor: row.rectangle_color,
+				textLabels: row.text_labels,
+				textColor: row.text_color,
+				abilityColor: row.ability_color,
+				circleColor: row.circle_color,
+				abilityIcons: row.ability_icons,
+			},
+		})));
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.get('/api/heroes/:heroId', async (req, res, next) => {
+	try {
+		const {heroId} = req.params;
+		const {rows} = await pool.query(`
+			select
+				h.id as hero_id,
+				h.name,
+				h.owner_id,
+				h.visibility,
+				a.display_label,
+				a.hero_portrait_path,
+				a.hero_render_path,
+				a.hero_bg_path,
+				a.hero_name_path,
+				t.hero_folder,
+				t.signature_color,
+				t.rectangle_color,
+				t.text_labels,
+				t.text_color,
+				t.ability_color,
+				t.circle_color,
+				t.ability_icons
+			from heroes h
+			join hero_assets a on a.hero_id = h.id
 			left join hero_cluster_themes t on t.hero_id = h.id
 			where h.name = $1
 			limit 1
@@ -366,30 +508,95 @@ app.get('/api/heroes/:heroId', async (req, res, next) => {
 		}
 		
 		const hero = rows[0];
-		res.json({
-			id: hero.hero_id,
-			label: hero.display_label,
-			name: hero.name,
-			ownerId: hero.owner_id,
-			visibility: hero.visibility,
-			portrait: hero.portrait_path,
-			render: hero.render_path,
-			signature: hero.signature_path,
-			theme: {
-				heroFolder: hero.hero_folder,
-				signatureColor: hero.signature_color,
-				rectangleColor: hero.rectangle_color,
-				textLabels: hero.text_labels,
-				textColor: hero.text_color,
-				abilityColor: hero.ability_color,
-				circleColor: hero.circle_color,
-				abilityIcons: hero.ability_icons,
-			},
-		});
+		res.json(mapHeroRow(hero));
 	} catch (error) {
 		next(error);
 	}
 });
+
+	app.post('/api/heroes', async (req, res, next) => {
+		try {
+			const accessToken = parseBearerToken(req);
+			if (!accessToken) {
+				throw Object.assign(new Error('Unauthorized.'), {status: 401, code: 'UNAUTHORIZED'});
+			}
+
+			const user = await resolveUserFromAccessToken(accessToken);
+			const signatureType = String(req.body.signatureType || 'image').trim().toLowerCase() === 'text' ? 'text' : 'image';
+			const signatureValue = String(req.body.signatureValue || '').trim();
+			if (!signatureValue) {
+				throw Object.assign(new Error('Signature is required.'), {status: 400, code: 'INVALID_SIGNATURE'});
+			}
+
+			const heroFolder = slugifyHeroFolder(req.body.heroFolder || signatureValue);
+			const heroNamePath = encodeHeroSignature({signatureType, signatureValue});
+			const visibility = normalizeHeroVisibility(req.body.visibility);
+			const displayLabel = signatureType === 'text' ? signatureValue : 'Custom Hero';
+			const labels = normalizeTextList(req.body.labels, ['TBD', 'TBD', 'TBD']);
+			const abilityIcons = normalizeAbilityIcons(req.body.abilities);
+			const signatureColor = String(req.body.signatureColor || '#ffefd6').trim() || '#ffefd6';
+			const rectangleColor = String(req.body.rectangleColor || '#cccccc').trim() || '#cccccc';
+			const textColor = String(req.body.textColor || '#111111').trim() || '#111111';
+			const circleColor = String(req.body.circleColor || '#cccccc').trim() || '#cccccc';
+			const iconColor = String(req.body.iconColor || '#111111').trim() || '#111111';
+
+			const hero = await withClient(async (client) => {
+				await client.query('begin');
+				try {
+					const heroId = crypto.randomUUID();
+					await client.query(
+						`insert into heroes (id, name, owner_id, visibility)
+						 values ($1, $2, $3, $4)`,
+						[heroId, `custom-${heroId.slice(0, 8)}`, user.id, visibility],
+					);
+
+					await client.query(
+						`insert into hero_cluster_themes (hero_id, hero_folder, signature_color, rectangle_color, text_labels, text_color, ability_color, circle_color, ability_icons)
+						 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+						[heroId, heroFolder, signatureColor, rectangleColor, labels, textColor, iconColor, circleColor, abilityIcons],
+					);
+
+					await buildCustomHeroAssetRow(client, heroId, heroFolder, heroNamePath, displayLabel);
+
+					const {rows} = await client.query(`
+						select
+							h.id as hero_id,
+							h.name,
+							h.owner_id,
+							h.visibility,
+							a.display_label,
+							a.hero_portrait_path,
+							a.hero_render_path,
+							a.hero_bg_path,
+							a.hero_name_path,
+							t.hero_folder,
+							t.signature_color,
+							t.rectangle_color,
+							t.text_labels,
+							t.text_color,
+							t.ability_color,
+							t.circle_color,
+							t.ability_icons
+						from heroes h
+						join hero_assets a on a.hero_id = h.id
+						join hero_cluster_themes t on t.hero_id = h.id
+						where h.id = $1
+						limit 1
+					`, [heroId]);
+
+					await client.query('commit');
+					return rows[0];
+				} catch (error) {
+					await client.query('rollback');
+					throw error;
+				}
+			});
+
+			res.status(201).json(mapHeroRow(hero));
+		} catch (error) {
+			next(error);
+		}
+	});
 
 app.use((error, _req, res, _next) => {
 	const status = error.status || 500;
@@ -409,7 +616,7 @@ app.get('/api/heroes/:heroId/weapon-stats', async (req, res, next) => {
 				ws.*
 			from heroes h
 			left join hero_weapon_stats ws on ws.hero_id = h.id
-			where h.name = $1
+			where h.id = $1 or h.name = $1
 			limit 1
 		`, [heroId]);
 
@@ -420,6 +627,54 @@ app.get('/api/heroes/:heroId/weapon-stats', async (req, res, next) => {
 		// If no weapon row exists the joined columns will be null; return null to indicate absence
 		const weaponRow = rows[0].hero_id && rows[0].weapon_name == null ? null : rows[0];
 		res.json(weaponRow);
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.get('/api/heroes/:heroId/vitality-stats', async (req, res, next) => {
+	try {
+		const {heroId} = req.params;
+		const {rows} = await pool.query(`
+			select
+				h.id as hero_id,
+				vs.*
+			from heroes h
+			left join hero_vitality_stats vs on vs.hero_id = h.id
+			where h.id = $1 or h.name = $1
+			limit 1
+		`, [heroId]);
+
+		if (rows.length === 0) {
+			throw Object.assign(new Error('Hero not found.'), {status: 404, code: 'HERO_NOT_FOUND'});
+		}
+
+		const vitalityRow = rows[0].hero_id && rows[0].max_health == null ? null : rows[0];
+		res.json(vitalityRow);
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.get('/api/heroes/:heroId/spirit-stats', async (req, res, next) => {
+	try {
+		const {heroId} = req.params;
+		const {rows} = await pool.query(`
+			select
+				h.id as hero_id,
+				ss.*
+			from heroes h
+			left join hero_spirit_stats ss on ss.hero_id = h.id
+			where h.id = $1 or h.name = $1
+			limit 1
+		`, [heroId]);
+
+		if (rows.length === 0) {
+			throw Object.assign(new Error('Hero not found.'), {status: 404, code: 'HERO_NOT_FOUND'});
+		}
+
+		const spiritRow = rows[0].hero_id && rows[0].spirit_power == null ? null : rows[0];
+		res.json(spiritRow);
 	} catch (error) {
 		next(error);
 	}

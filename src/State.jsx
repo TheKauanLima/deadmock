@@ -8,6 +8,7 @@ import {templates} from '/src/Serialize';
 class State {
   activeModel = null;
   selectedHeroId = null;
+  isCreatingHero = false;
   _modelStorage = null;
 
   constructor(modelStorage, initialRaw) {
@@ -75,6 +76,10 @@ class State {
 
   clearSelectedHero() {
     this.selectedHeroId = null;
+  }
+
+  setIsCreatingHero(value) {
+    this.isCreatingHero = Boolean(value);
   }
 
   loadRecord(key, options) {

@@ -2,12 +2,15 @@ import {observer} from 'mobx-react-lite';
 import {useContext, useEffect, useState} from 'preact/hooks';
 
 import {ConfigContext} from '/src/Common';
-import {fetchHero} from '/src/services/canonicalHeroService';
+import {clearCache, fetchHero, saveCustomHero} from '/src/services/canonicalHeroService';
 import {fetchHeroWeaponStats} from '/src/services/weaponStatsService';
-import {WeaponPanel} from '/src/WeaponPanel';
-import {buildWeaponStatsArray} from '/src/WeaponPanel/weaponStatsMapper';
-import VitalityPanel from '/src/WeaponPanel/HeroStatsVitalityPanel.jsx';
-import {buildVitalityStatsArray} from '/src/WeaponPanel/vitalityStatsMapper';
+import {fetchHeroVitalityStats} from '/src/services/vitalityStatsService';
+import {fetchHeroSpiritStats} from '/src/services/spiritStatsService';
+import { WeaponPanel, HeroStatsVitalityPanel as VitalityPanel, HeroStatsSpiritPanel } from '/src/WeaponPanel';
+import { buildWeaponStatsArray } from '/src/WeaponPanel/weaponStatsMapper';
+import { buildVitalityStatsArray } from '/src/WeaponPanel/vitalityStatsMapper';
+import { buildTopSpiritStatsArray, buildSpiritPowerStat } from '/src/WeaponPanel/spiritStatsMapper';
+import {useAuth} from '/src/Auth/useAuth';
 
 import {backgroundOptions, defaultBackgroundId} from './backgrounds';
 import {HeroInfoCluster} from './HeroInfoCluster';
@@ -16,14 +19,33 @@ import './Background.css';
 
 const storageKey = 'deadmock.background.right';
 
+const createInitialHeroDraft = () => ({
+	signatureType: 'image',
+	signatureValue: '',
+	labels: ['TBD', 'TBD', 'TBD'],
+	abilities: [null, null, null, null],
+	signatureColor: '#ffefd6',
+	rectangleColor: '#cccccc',
+	textColor: '#ffefd6',
+	circleColor: '#cccccc',
+	iconColor: '#cccccc',
+	heroFolder: 'custom_hero',
+});
+
 
 const Background = observer(({state, isEditable = true}) => {
 	const config = useContext(ConfigContext);
 	const baseUrl = config.baseUrl || '/';
+	const {user, accessToken} = useAuth();
 	const [heroClusterTheme, setHeroClusterTheme] = useState(null);
 	const [selectedHero, setSelectedHero] = useState(null);
 	const [weaponStatsRow, setWeaponStatsRow] = useState(null);
+	const [vitalityStatsRow, setVitalityStatsRow] = useState(null);
+	const [spiritStatsRow, setSpiritStatsRow] = useState(null);
 	const [selectedSidebarTab, setSelectedSidebarTab] = useState('stats');
+	const [heroDraft, setHeroDraft] = useState(() => createInitialHeroDraft());
+	const [saveState, setSaveState] = useState('idle');
+	const [saveError, setSaveError] = useState(null);
 	const [selectedBackgroundId, setSelectedBackgroundId] = useState(() =>
 		window.localStorage.getItem(storageKey) || defaultBackgroundId,
 	);
@@ -37,6 +59,8 @@ const Background = observer(({state, isEditable = true}) => {
 			setSelectedHero(null);
 			setHeroClusterTheme(null);
 			setWeaponStatsRow(null);
+			setVitalityStatsRow(null);
+			setSpiritStatsRow(null);
 			return;
 		}
 
@@ -46,19 +70,31 @@ const Background = observer(({state, isEditable = true}) => {
 				if (hero) {
 					setSelectedHero(hero);
 					setHeroClusterTheme(hero.theme);
-					// fetch weapon stats row
-					fetchHeroWeaponStats(state.selectedHeroId)
-						.then((row) => {
-							if (cancelled) return;
-							setWeaponStatsRow(row);
-						})
-						.catch(() => {
-							if (!cancelled) setWeaponStatsRow(null);
-						});
+					
+					// Fetch stats in parallel
+					Promise.all([
+						fetchHeroWeaponStats(state.selectedHeroId),
+						fetchHeroVitalityStats(state.selectedHeroId),
+						fetchHeroSpiritStats(state.selectedHeroId),
+					]).then(([ws, vs, ss]) => {
+						if (cancelled) return;
+						setWeaponStatsRow(ws);
+						setVitalityStatsRow(vs);
+						setSpiritStatsRow(ss);
+					}).catch((err) => {
+						console.error('Error fetching hero stats:', err);
+						if (!cancelled) {
+							setWeaponStatsRow(null);
+							setVitalityStatsRow(null);
+							setSpiritStatsRow(null);
+						}
+					});
 				} else {
 					setSelectedHero(null);
 					setHeroClusterTheme(null);
 					setWeaponStatsRow(null);
+					setVitalityStatsRow(null);
+					setSpiritStatsRow(null);
 				}
 			})
 			.catch(() => {
@@ -66,6 +102,8 @@ const Background = observer(({state, isEditable = true}) => {
 					setSelectedHero(null);
 					setHeroClusterTheme(null);
 					setWeaponStatsRow(null);
+					setVitalityStatsRow(null);
+					setSpiritStatsRow(null);
 				}
 			});
 
@@ -73,6 +111,22 @@ const Background = observer(({state, isEditable = true}) => {
 			cancelled = true;
 		};
 	}, [state.selectedHeroId]);
+
+	useEffect(() => {
+		if (!state.isCreatingHero) {
+			return;
+		}
+
+		setHeroDraft(createInitialHeroDraft());
+		setSaveState('idle');
+		setSaveError(null);
+	}, [state.isCreatingHero]);
+
+	useEffect(() => {
+		if (heroDraft) {
+			setSaveError(null);
+		}
+	}, [heroDraft]);
 
 	useEffect(() => {
 		window.localStorage.setItem(storageKey, selectedBackground.id);
@@ -83,10 +137,41 @@ const Background = observer(({state, isEditable = true}) => {
 		document.documentElement.style.setProperty(
 			'--mock-background-side-image',
 			selectedHero
-				? `url("${baseUrl}${selectedHero.render}")`
+				? `url("${baseUrl}${selectedHero.heroRender}")`
 				: `url("${baseUrl}background/${selectedBackground.file}")`,
 		);
 	}, [baseUrl, selectedBackground, selectedHero]);
+
+	const handleSaveCustomHero = async (visibility) => {
+		if (!user || !accessToken) {
+			setSaveError('Sign in to save custom heroes.');
+			return;
+		}
+
+		if (!heroDraft.signatureValue || !String(heroDraft.signatureValue).trim()) {
+			setSaveError('Pick a signature before saving.');
+			return;
+		}
+
+		setSaveState('saving');
+		setSaveError(null);
+
+		try {
+			const savedHero = await saveCustomHero({
+				...heroDraft,
+				visibility,
+			}, accessToken);
+			clearCache();
+			state.setSelectedHero(savedHero.id);
+			state.setIsCreatingHero(false);
+		} catch (error) {
+			setSaveError(error.message || 'Failed to save custom hero.');
+		} finally {
+			setSaveState('idle');
+		}
+	};
+
+	const actionsDisabled = saveState === 'saving' || !user;
 
 	return (
 		<>
@@ -142,7 +227,49 @@ const Background = observer(({state, isEditable = true}) => {
 			)}
 			{selectedSidebarTab === 'vitality' && (
 				<div className="mock-weapon-stats-panel">
-					<VitalityPanel stats={buildVitalityStatsArray(selectedHero)} />
+					<VitalityPanel stats={buildVitalityStatsArray(vitalityStatsRow || selectedHero)} />
+				</div>
+			)}
+			{selectedSidebarTab === 'signature' && (
+				<div className="mock-weapon-stats-panel">
+					<HeroStatsSpiritPanel 
+						stats={buildTopSpiritStatsArray(spiritStatsRow || selectedHero)} 
+						spiritPowerStat={buildSpiritPowerStat(spiritStatsRow || selectedHero)}
+					/>
+				</div>
+			)}
+			{state.isCreatingHero && (
+				<div className="mock-hero-info-cluster-centered">
+					<HeroInfoCluster
+						isEditable={true}
+						theme={heroClusterTheme}
+						baseUrl={baseUrl}
+						onDraftChange={setHeroDraft}
+					/>
+				</div>
+			)}
+			{state.isCreatingHero && (
+				<div className="mock-hero-actions-bar">
+					<button
+						type="button"
+						className="mock-hero-save-button"
+						onClick={() => handleSaveCustomHero('private')}
+						disabled={actionsDisabled}
+					>
+						{saveState === 'saving' ? 'Saving...' : 'Save'}
+					</button>
+					<button
+						type="button"
+						className="mock-hero-publish-button"
+						onClick={() => handleSaveCustomHero('public')}
+						disabled={actionsDisabled}
+					>
+						{saveState === 'saving' ? 'Publishing...' : 'Publish'}
+					</button>
+					{!user && (
+						<div className="mock-hero-save-hint">Sign in to save or publish heroes.</div>
+					)}
+					{saveError && <div className="mock-hero-save-error">{saveError}</div>}
 				</div>
 			)}
 			{selectedHero && <HeroInfoCluster hero={selectedHero} theme={heroClusterTheme} baseUrl={baseUrl} />}

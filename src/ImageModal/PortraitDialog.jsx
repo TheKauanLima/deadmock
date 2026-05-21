@@ -18,8 +18,8 @@ const PortraitButton = ({id, onChange, onApply}) => {
   );
 };
 
-const portraitMode = 'Custom Portrait';
-const PortraitDialog = ({image, onChange, onClose}) => {
+const portraitMode = 'Edit Signature';
+const PortraitDialog = ({image, onChange, onClose, type}) => {
   const [display, setDisplay] = useState(image);
   const onCancel = useCallback(() => {
     onClose();

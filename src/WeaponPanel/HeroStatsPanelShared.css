@@ -142,7 +142,28 @@
     border-radius: 3px;
     background-color: rgba(0, 0, 0, 0.2);
     font-family: Deadlock, sans-serif;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+}
+
+.statScalingIcon {
+  width: 34px;
+  height: 24px;
+  margin-right: -5px;
+  margin-top: -5px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Use standard scaling classes from scalingUtils */
+.scaling-spirit { background-image: url('/icon/spirit_scaling.png'); }
+.scaling-courage { background-image: url('/icon/weapon_scaling.png'); }
+.scaling-boon { background-image: url('/icon/boon_scaling.png'); }
+
+.weaponScalingLabel {
+    display: none;
 }
 
 .weaponStatsRow--final .weaponStatCell {
@@ -445,8 +466,8 @@ CitadelHeroDetailsPage #StatContainer_StaminaRegenIncrease {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: none;
     background: transparent;
@@ -455,8 +476,8 @@ CitadelHeroDetailsPage #StatContainer_StaminaRegenIncrease {
 }
 
 .scalingIcon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
     display: block;
 }
@@ -465,8 +486,8 @@ CitadelHeroDetailsPage #StatContainer_StaminaRegenIncrease {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.08);
     color: rgba(255, 255, 255, 0.55);

@@ -2,6 +2,7 @@ import {useCallback, useEffect, useRef, useState} from 'preact/hooks';
 
 import {clickInsideElement} from '/src/Common';
 import {FileDrop} from '/src/FileDrop';
+import {AbilityLibraryDialog} from './AbilityLibraryDialog';
 import {IconDialog} from './IconDialog';
 import {PortraitDialog} from './PortraitDialog';
 import './ImageModal.css';
@@ -23,9 +24,11 @@ const ImageModal = ({image, onClose, onChange, type}) => {
     }
   }, [ref]);
 
-  const contents = type === 'icon' ?
+  const contents = type === 'ability-library' ?
+    <AbilityLibraryDialog image={image} onChange={onChange} onClose={onClose} /> :
+    type === 'icon' ?
     <IconDialog image={image} onChange={onChange} onClose={onClose} /> :
-    <PortraitDialog image={image} onChange={onChange} onClose={onClose} />;
+    <PortraitDialog image={image} onChange={onChange} onClose={onClose} type={type} />;
 
   return (
     <dialog ref={ref} className="mock-image-dialog" onCancel={onClose} onClick={onClick}>
@@ -34,7 +37,7 @@ const ImageModal = ({image, onClose, onChange, type}) => {
   );
 };
 
-const ImageModalTrigger = ({children, image, onChange, type}) => {
+const ImageModalTrigger = ({children, image, onChange, type, modalType, dropType}) => {
   const [show, setShow] = useState(false);
   const onOpen = useCallback(() => setShow(true), [setShow]);
   const onClose = useCallback(() => setShow(false), [setShow]);
@@ -42,12 +45,14 @@ const ImageModalTrigger = ({children, image, onChange, type}) => {
     setShow(false);
     onChange(data);
   }, [setShow, onChange]);
+  const resolvedModalType = modalType || type;
+  const resolvedDropType = dropType || type;
 
   return (
     <div className="mock-image-modal-trigger" onClick={onOpen}>
       <div className="mock-image-modal-overlay" />
-      {show && <ImageModal image={image} type={type} onChange={onChangeWrapped} onClose={onClose} />}
-      <FileDrop type={type} onDrop={onChange}>
+      {show && <ImageModal image={image} type={resolvedModalType} onChange={onChangeWrapped} onClose={onClose} />}
+      <FileDrop type={resolvedDropType} onDrop={onChange}>
         {children}
       </FileDrop>
     </div>

@@ -1,8 +1,6 @@
 import {hasSupabaseConfig, supabase} from './supabase';
 
-let heroCatalogCache = null;
 let heroClusterThemeCache = null;
-let heroCatalogPromise = null;
 let heroClusterThemePromise = null;
 
 const normalizeThemeRow = (row) => ({
@@ -16,37 +14,6 @@ const normalizeThemeRow = (row) => ({
 	circleColor: row.circle_color,
 	abilityIcons: row.ability_icons || [],
 });
-
-async function loadHeroCatalog() {
-	if (heroCatalogCache) {
-		return heroCatalogCache;
-	}
-
-	if (!hasSupabaseConfig || !supabase) {
-		return [];
-	}
-
-	if (!heroCatalogPromise) {
-		heroCatalogPromise = supabase
-			.from('hero_catalog')
-			.select('*')
-			.order('sort_order', {ascending: true})
-			.order('display_label', {ascending: true})
-			.then(({data, error}) => {
-				if (error) {
-					throw error;
-				}
-
-				heroCatalogCache = data || [];
-				return heroCatalogCache;
-			})
-			.finally(() => {
-				heroCatalogPromise = null;
-			});
-	}
-
-	return heroCatalogPromise;
-}
 
 async function loadHeroClusterThemeMap() {
 	if (heroClusterThemeCache) {
@@ -96,6 +63,5 @@ export async function getHeroClusterTheme(heroId) {
 }
 
 export function clearHeroThemeCache() {
-	heroCatalogCache = null;
 	heroClusterThemeCache = null;
 }

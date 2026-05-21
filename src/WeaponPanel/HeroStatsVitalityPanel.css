@@ -81,7 +81,7 @@
   padding: 4px 8px;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.22);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .vitalityStatIcon {
@@ -178,12 +178,12 @@
   min-width: 0;
   width: 100%;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .vitalityStatValue {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f3f7ef;
 }
 
@@ -195,7 +195,7 @@
 
 .vitalityStatLabel {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: rgba(243, 247, 239, 0.9);
 }
 

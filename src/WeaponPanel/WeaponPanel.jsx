@@ -4,7 +4,7 @@ import './HeroStatsWeaponPanel.css';
 import './HeroStatsPanelShared.css';
 import '../styles/CitadelBaseStyles.css';
 
-const SCALING_OPTIONS = ['none', 'spirit', 'courage', 'boon'];
+import { SCALING_TYPES, SCALING_ICONS, getNextScaling } from './scalingUtils';
 
 function normalizeStat(stat) {
   return {
@@ -198,6 +198,7 @@ export default function WeaponPanel({
                   <CompactStatElement
                     key={`weapon-stat-${rowIndex}-${statIndex}`}
                     {...stat}
+                    onChange={(updates) => handleStatChange(absoluteIndex, updates)}
                   />
                 );
               })}
@@ -219,26 +220,33 @@ export default function WeaponPanel({
   );
 }
 
-function CompactStatElement({ label, value, unit = '', icon = 'dot', scaling = 'none', scalingValue = '0' }) {
+function CompactStatElement({ label, value, unit = '', icon = 'dot', scaling = 'none', scalingValue = '0', onChange }) {
   const iconClass = [
     'weaponStatIcon',
     `weaponStatIcon--${icon}`,
   ].join(' ');
-  const scalingIconSrc = scaling === 'none' ? null : `/panorama/images/shop/keystat_${scaling}_arrow_png.png`;
+  const scalingIcon = SCALING_ICONS[scaling || 'none'];
+
+  const handleScalingClick = () => {
+    if (onChange) {
+      const nextScaling = getNextScaling(scaling);
+      onChange({
+        scaling: nextScaling,
+        scalingValue: nextScaling === 'none' ? '0' : scalingValue,
+      });
+    }
+  };
 
   return (
-    <div class="weaponStatCell weaponStatCell--viewOnly">
+    <div class="weaponStatCell weaponStatCell--viewOnly" onClick={handleScalingClick} style={{cursor: 'pointer'}} data-scaling={scaling}>
       <span class={iconClass} aria-hidden="true" />
       <div class="weaponStatText">
         <span class="weaponStatValue">{formatNumericDisplay(value)}</span>
         {unit && <span class="weaponStatUnit">{unit}</span>}
         <span class="weaponStatLabel">{label}</span>
       </div>
-      {scalingIconSrc && (
-        <div class="statScalingIndicator" title={`${scaling} scaling ${scalingValue}`}>
-          <img class="scalingIcon" src={scalingIconSrc} alt={scaling} />
-          <span class="scalingValueText">{formatNumericDisplay(scalingValue)}</span>
-        </div>
+      {scalingIcon && (
+        <div class={`statScalingIcon ${scalingIcon}`} title={`${scaling} scaling ${scalingValue}`} />
       )}
     </div>
   );
@@ -255,21 +263,17 @@ function CompactStatElementEditable({ label, value, unit = '', icon = 'dot', sca
   };
 
   const handleScalingClick = () => {
-    const currentIndex = SCALING_OPTIONS.indexOf(scaling);
-    const nextIndex = (currentIndex + 1) % SCALING_OPTIONS.length;
-    const nextScaling = SCALING_OPTIONS[nextIndex];
+    const nextScaling = getNextScaling(scaling);
     onChange({
       scaling: nextScaling,
       scalingValue: nextScaling === 'none' ? '0' : scalingValue,
     });
   };
 
-  const handleScalingValueChange = (e) => {
-    onChange({ scalingValue: e.target.value });
-  };
+  const scalingIcon = SCALING_ICONS[scaling || 'none'];
 
   return (
-    <div class="weaponStatCell weaponStatCell--editable" onClick={handleScalingClick} role="button" tabIndex={0}>
+    <div class="weaponStatCell weaponStatCell--editable" style={{cursor: 'pointer'}} onClick={handleScalingClick} data-scaling={scaling}>
       <span class={iconClass} aria-hidden="true" />
       <div class="weaponStatText weaponStatText--editable">
         <input
@@ -283,34 +287,9 @@ function CompactStatElementEditable({ label, value, unit = '', icon = 'dot', sca
         {unit && <span class="weaponStatUnit">{unit}</span>}
         <span class="weaponStatLabel">{label}</span>
       </div>
-      <div class="statScalingControl">
-        <button
-          class="scalingIconButton"
-          onClick={handleScalingClick}
-          title={`Click to change scaling: ${scaling}`}
-          type="button"
-        >
-          {scaling !== 'none' && (
-            <img
-              src={`/panorama/images/shop/keystat_${scaling}_arrow_png.png`}
-              alt={scaling}
-              class="scalingIcon"
-            />
-          )}
-          {scaling === 'none' && <span class="scalingIconPlaceholder">–</span>}
-        </button>
-        {scaling !== 'none' && (
-          <input
-            type="text"
-            class="scalingValueInput"
-            value={scalingValue}
-            onChange={handleScalingValueChange}
-            placeholder="0"
-            title={`${scaling.charAt(0).toUpperCase() + scaling.slice(1)} scaling value`}
-            onClick={(e) => e.stopPropagation()}
-          />
-        )}
-      </div>
+      {scalingIcon && (
+        <div class={`statScalingIcon ${scalingIcon}`} title={`${scaling} scaling`} />
+      )}
     </div>
   );
 }

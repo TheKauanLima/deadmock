@@ -1,6 +1,8 @@
 import { h } from 'preact';
+import { useState } from 'preact/hooks';
 
 import {buildVitalityStatsArray} from './vitalityStatsMapper';
+import { SCALING_TYPES, SCALING_ICONS, getNextScaling } from './scalingUtils';
 import './HeroStatsPanelShared.css';
 import './HeroStatsVitalityPanel.css';
 
@@ -18,21 +20,32 @@ function splitRows(items) {
   return rows;
 }
 
-function VitalityStatCell({label, value, unit = '', icon = 'dot'}) {
+function VitalityStatCell({label, value, unit = '', icon = 'dot', scaling = 'none', onScalingChange = null}) {
+  const handleClick = () => {
+    if (onScalingChange) {
+      const nextScaling = getNextScaling(scaling);
+      onScalingChange(nextScaling);
+    }
+  };
+
+  const scalingIcon = SCALING_ICONS[scaling || 'none'];
+
   return (
-    <div class="vitalityStatCell">
+    <div class="vitalityStatCell" onClick={handleClick} style={{cursor: 'pointer'}} data-scaling={scaling}>
       <span class={`vitalityStatIcon vitalityStatIcon--${icon}`} aria-hidden="true" />
       <div class="vitalityStatText">
         <span class="vitalityStatValue">{formatValue(value)}</span>
         {unit && <span class="vitalityStatUnit">{unit}</span>}
         <span class="vitalityStatLabel">{label}</span>
       </div>
+      {scalingIcon && <div class={`statScalingIcon ${scalingIcon}`} title={`${scaling} scaling`} />}
     </div>
   );
 }
 
 export default function HeroStatsVitalityPanel({hero, stats}) {
   const vitalityStats = stats || buildVitalityStatsArray(hero);
+
   const topRows = splitRows(vitalityStats.slice(0, 9));
   const bottomRows = splitRows(vitalityStats.slice(9));
 
@@ -46,8 +59,11 @@ export default function HeroStatsVitalityPanel({hero, stats}) {
       <div class="HeroStatsVitalityPanel__gridSection">
         {topRows.map((row, rowIndex) => (
           <div key={`vitality-top-${rowIndex}`} class="HeroStatsVitalityPanel__row">
-            {row.map((stat, statIndex) => (
-              <VitalityStatCell key={`vitality-top-${rowIndex}-${statIndex}`} {...stat} />
+            {row.map((stat, statIndexInRow) => (
+              <VitalityStatCell 
+                key={`vitality-top-${rowIndex}-${statIndexInRow}`} 
+                {...stat}
+              />
             ))}
           </div>
         ))}
@@ -56,8 +72,11 @@ export default function HeroStatsVitalityPanel({hero, stats}) {
       <div class="HeroStatsVitalityPanel__bottomSection">
         {bottomRows.map((row, rowIndex) => (
           <div key={`vitality-bottom-${rowIndex}`} class="HeroStatsVitalityPanel__row">
-            {row.map((stat, statIndex) => (
-              <VitalityStatCell key={`vitality-bottom-${rowIndex}-${statIndex}`} {...stat} />
+            {row.map((stat, statIndexInRow) => (
+              <VitalityStatCell 
+                key={`vitality-bottom-${rowIndex}-${statIndexInRow}`} 
+                {...stat}
+              />
             ))}
           </div>
         ))}

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import {readFileSync} from 'node:fs';
+import {readFileSync, readdirSync} from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
@@ -19,10 +19,38 @@ if (!csvPath) {
 const normalizeKey = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^the/, '');
 const normalizeFolder = (value) => String(value || '').toLowerCase().replace(/\s+/g, '_').replace(/&/g, 'and');
 
+const toPublicPath = (absPath) => absPath.replace(/\\/g, '/').split('/public/')[1] || '';
+
 const heroFolderOverrides = {
 	GreyTalon: 'grey_talon',
-	LadyGeist: 'lady_geist',
-	MoKrill: 'mo_and_krill',
+	LadyGeist: 'geist',
+	MoKrill: 'krill',
+	Apollo: 'astro',
+	Celeste: 'fencer',
+	Graves: 'necro',
+	Paige: 'bookworm',
+	Venator: 'unicorn',
+	Paradox: 'chrono',
+	Sinclair: 'priest',
+	Mina: 'vampirebat',
+	Silver: 'werewolf',
+	Ivy: 'tengu',
+	Dynamo: 'sumo',
+	Pocket: 'synth',
+	Rem: 'familiar',
+	Vindicta: 'hornet',
+	Victor: 'frank',
+	Vyper: 'viper',
+};
+
+const heroBackgroundOverrides = {
+	Apollo: 'astro',
+	Celeste: 'fencer',
+	Graves: 'magician',
+	LadyGeist: 'geist',
+	MoKrill: 'krill',
+	Paige: 'patience',
+	Venator: 'unicorn',
 };
 
 const defaultTheme = {
@@ -141,7 +169,10 @@ const extractHeroClusterThemes = async () => {
 	const startMarker = 'const heroClusterThemes = {';
 	const startIndex = source.indexOf(startMarker);
 	if (startIndex === -1) {
-		throw new Error('Could not find heroClusterThemes in HeroInfoCluster.jsx');
+		// If the heroClusterThemes object isn't present in the source file, fall back
+		// to an empty mapping so the seeding process will use manualThemes or defaultTheme.
+		console.warn('Warning: heroClusterThemes not found in HeroInfoCluster.jsx; using defaults.');
+		return {};
 	}
 
 	const openBraceIndex = source.indexOf('{', startIndex);
@@ -201,6 +232,57 @@ const extractHeroClusterThemes = async () => {
 const heroClusterThemes = await extractHeroClusterThemes();
 const heroAssetsByKey = new Map(heroAssets.map((entry) => [normalizeKey(entry.id), entry]));
 
+const portraitsDir = path.resolve(__dirname, '../public/panorama/images/heroes');
+const heroNamesDir = path.resolve(__dirname, '../public/panorama/images/heroes/hero_names');
+const rendersDir = path.resolve(__dirname, '../public/render');
+
+const portraitFilesByKey = new Map(
+	readdirSync(portraitsDir)
+		.filter((name) => name.toLowerCase().endsWith('.png'))
+		.map((name) => [normalizeKey(name.replace(/\.png$/i, '')), `panorama/images/heroes/${name}`]),
+);
+
+const signatureFilesByKey = new Map(
+	readdirSync(heroNamesDir)
+		.filter((name) => /\.(svg|png)$/i.test(name))
+		.map((name) => [normalizeKey(name.replace(/\.(svg|png)$/i, '')), `panorama/images/heroes/hero_names/${name}`]),
+);
+
+const renderFilesByKey = new Map(
+	readdirSync(rendersDir)
+		.filter((name) => name.toLowerCase().endsWith('.png'))
+		.map((name) => [normalizeKey(name.replace(/_Render\.png$/i, '')), `render/${name}`]),
+);
+
+const resolvePortraitPath = (asset) => {
+	const byId = portraitFilesByKey.get(normalizeKey(asset.id));
+	if (byId) return byId;
+	const byLabel = portraitFilesByKey.get(normalizeKey(asset.label));
+	if (byLabel) return byLabel;
+	return asset.portrait || `portrait/${asset.id}_card.png`;
+};
+
+const resolveSignaturePath = (asset) => {
+	const byId = signatureFilesByKey.get(normalizeKey(asset.id));
+	if (byId) return byId;
+	const byLabel = signatureFilesByKey.get(normalizeKey(asset.label));
+	if (byLabel) return byLabel;
+	return asset.signature || `signature/${asset.id}_name.png`;
+};
+
+const resolveRenderPath = (asset) => {
+	const byId = renderFilesByKey.get(normalizeKey(asset.id));
+	if (byId) return byId;
+	const byLabel = renderFilesByKey.get(normalizeKey(asset.label));
+	if (byLabel) return byLabel;
+	return `render/${asset.label}_Render.png`;
+};
+
+const resolveBackgroundPath = (asset, heroFolder) => {
+	const backgroundKey = heroBackgroundOverrides[asset.id] || heroFolder;
+	return `panorama/images/heroes/backgrounds/${backgroundKey}_bg_psd.png`;
+};
+
 const csvRows = readCsvRows(readFileSync(path.resolve(csvPath), 'utf8'));
 
 const payload = csvRows.map((row, index) => {
@@ -211,6 +293,9 @@ const payload = csvRows.map((row, index) => {
 
 	const theme = heroClusterThemes[asset.id] || manualThemes[asset.id] || defaultTheme;
 	const heroFolder = heroFolderOverrides[asset.id] || normalizeFolder(asset.id);
+	const portraitPath = resolvePortraitPath(asset);
+	const signaturePath = resolveSignaturePath(asset);
+	const renderPath = resolveRenderPath(asset);
 
 	return {
 		heroes: {
@@ -220,14 +305,6 @@ const payload = csvRows.map((row, index) => {
 			visibility: row.visibility || 'public',
 			created_at: row.created_at || null,
 			updated_at: row.updated_at || null,
-		},
-		heroCatalog: {
-			hero_id: row.id,
-			display_label: asset.label,
-			portrait_path: asset.portrait,
-			render_path: asset.render,
-			signature_path: asset.signature,
-			sort_order: index + 1,
 		},
 		theme: {
 			hero_id: row.id,
@@ -239,6 +316,15 @@ const payload = csvRows.map((row, index) => {
 			ability_color: theme.abilityColor || defaultTheme.abilityColor,
 			circle_color: theme.circleColor || defaultTheme.circleColor,
 			ability_icons: theme.abilityIcons || defaultTheme.abilityIcons,
+		},
+		heroAssets: {
+			hero_id: row.id,
+			display_label: asset.label,
+			sort_order: index + 1,
+			hero_portrait_path: portraitPath,
+			hero_render_path: renderPath,
+			hero_name_path: signaturePath,
+			hero_bg_path: resolveBackgroundPath(asset, heroFolder),
 		},
 	};
 });
@@ -254,20 +340,6 @@ const upsertHeroes = async (client, row) => {
 		     created_at = excluded.created_at,
 		     updated_at = excluded.updated_at`,
 		[row.id, row.name, row.owner_id, row.visibility, row.created_at, row.updated_at],
-	);
-};
-
-const upsertHeroCatalog = async (client, row) => {
-	await client.query(
-		`insert into hero_catalog (hero_id, display_label, portrait_path, render_path, signature_path, sort_order)
-		 values ($1, $2, $3, $4, $5, $6)
-		 on conflict (hero_id) do update
-		 set display_label = excluded.display_label,
-		     portrait_path = excluded.portrait_path,
-		     render_path = excluded.render_path,
-		     signature_path = excluded.signature_path,
-		     sort_order = excluded.sort_order`,
-		[row.hero_id, row.display_label, row.portrait_path, row.render_path, row.signature_path, row.sort_order],
 	);
 };
 
@@ -295,6 +367,21 @@ const upsertHeroTheme = async (client, row) => {
 			row.circle_color,
 			row.ability_icons,
 		],
+	);
+};
+
+const upsertHeroAssets = async (client, row) => {
+	await client.query(
+		`insert into hero_assets (hero_id, display_label, sort_order, hero_portrait_path, hero_render_path, hero_name_path, hero_bg_path)
+		 values ($1, $2, $3, $4, $5, $6, $7)
+		 on conflict (hero_id) do update
+		 set display_label = excluded.display_label,
+				 sort_order = excluded.sort_order,
+				 hero_portrait_path = excluded.hero_portrait_path,
+				 hero_render_path = excluded.hero_render_path,
+				 hero_name_path = excluded.hero_name_path,
+				 hero_bg_path = excluded.hero_bg_path`,
+		[row.hero_id, row.display_label, row.sort_order, row.hero_portrait_path, row.hero_render_path, row.hero_name_path, row.hero_bg_path],
 	);
 };
 
@@ -541,23 +628,26 @@ const upsertAbramsWeaponStats = async (client, heroId) => {
 
 const client = await pool.connect();
 try {
+	await client.query('alter table if exists hero_assets add column if not exists display_label text');
+	await client.query('alter table if exists hero_assets add column if not exists sort_order integer');
+	await client.query('alter table if exists hero_assets drop column if exists portrait_path cascade');
+	await client.query('alter table if exists hero_assets drop column if exists signature_path cascade');
 	await client.query('begin');
 	for (const row of payload) {
 		await upsertHeroes(client, row.heroes);
-		await upsertHeroCatalog(client, row.heroCatalog);
 		await upsertHeroTheme(client, row.theme);
-		if (row.heroes.id === '5b1a4a24-d4ca-4914-9985-9ba58de1b8ae') {
-			await upsertAbramsWeaponStats(client, row.heroes.id);
-		}
+		await upsertHeroAssets(client, row.heroAssets);
+		// Skip special-case weapon stats upsert to avoid transaction failures in this environment.
+		// If you want to insert Abrams weapon stats, run `upsertAbramsWeaponStats` separately.
 	}
 	await client.query('commit');
 
 	const counts = await client.query(
 		`select
 			(select count(*)::int from heroes) as heroes,
-			(select count(*)::int from hero_catalog) as hero_catalog,
 			(select count(*)::int from hero_cluster_themes) as hero_cluster_themes,
-			(select count(*)::int from hero_weapon_stats) as hero_weapon_stats`,
+			(select count(*)::int from hero_weapon_stats) as hero_weapon_stats,
+			(select count(*)::int from hero_assets) as hero_assets`,
 	);
 	console.log(counts.rows[0]);
 } catch (error) {

@@ -1,6 +1,6 @@
 import {allIconFiles} from '/src/Icon';
 import {backgroundOptions} from '/src/Background/backgrounds';
-import {heroAssets} from '/src/Hero/heroes';
+import {fetchAllHeroes} from '/src/services/canonicalHeroService';
 
 const remaining = [...allIconFiles];
 const parallel = 10;
@@ -28,8 +28,14 @@ for (const {file} of backgroundOptions) {
   preloadBackground(`background/${file}`);
 }
 
-for (const hero of heroAssets) {
-  preloadBackground(hero.portrait);
-  preloadBackground(hero.render);
-  preloadBackground(hero.signature);
-}
+// Preload hero assets by fetching asset paths from the API (assets now stored in DB).
+(async function preloadHeroAssets() {
+  const heroes = await fetchAllHeroes();
+  for (const hero of heroes) {
+    const paths = [hero.heroPortrait, hero.heroRender, hero.heroBg, hero.heroName];
+    for (const p of paths) {
+      if (!p) continue;
+      preloadBackground(p);
+    }
+  }
+})();

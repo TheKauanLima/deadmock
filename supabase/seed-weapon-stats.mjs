@@ -226,7 +226,11 @@ const upsertAbramsWeaponStats = async (client, row) => {
 			$66,
 			$67,
 			$68,
-			$69
+			$69,
+			$70,
+			$71,
+			$72,
+			$73
 		)
 		on conflict (hero_id) do update
 		set

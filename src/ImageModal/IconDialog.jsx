@@ -18,7 +18,8 @@ const staticImageGroups = {
   legacy:  [legacyIcons],
 };
 
-const allModes = Object.keys(staticImageGroups).concat(['custom']);
+const modeKeys = Object.keys(staticImageGroups).concat(['ability-library', 'custom']);
+const modeLabels = modeKeys.map((k) => (k === 'ability' ? 'Ability' : k === 'ability-library' ? 'Ability Library' : k.charAt(0).toUpperCase() + k.slice(1)));
 
 const initialMode = (image) =>
   Object.entries(staticImageGroups).filter(
@@ -28,7 +29,10 @@ const initialMode = (image) =>
 const IconDialog = ({image, onChange, onClose}) => {
   const [display, setDisplay] = useState(image);
   const [mode, setMode] = useState(() => initialMode(image));
-  const onChangeMode = useCallback((x) => setMode(x), [setMode]);
+  const onChangeMode = useCallback((label) => {
+    const idx = modeLabels.indexOf(label);
+    if (idx !== -1) setMode(modeKeys[idx]);
+  }, [setMode]);
   const onCancel = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -43,12 +47,30 @@ const IconDialog = ({image, onChange, onClose}) => {
     if (mode === 'custom') {
       return <CustomGallery component={IconBadge} type="icon" onApply={onApplyDirect} onChange={setDisplay} />;
     }
+    if (mode === 'ability-library') {
+      // Render a simple directory browser for ability folders
+      const heroes = Object.keys(abilityIconsByHero).sort();
+      return (
+        <div className="mock-ability-library">
+          {heroes.map((h) => (
+            <div key={h} className="mock-ability-library-hero">
+              <div className="mock-ability-library-hero-name">{h}</div>
+              <div className="mock-ability-library-icons">
+                {(abilityIconsByHero[h] || []).map((id) => (
+                  <IconBadge key={id} id={id} onApply={onApplyDirect} onChange={setDisplay} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
     return <StaticGallery groups={staticImageGroups[mode]} onApply={onApplyDirect} onChange={setDisplay} />;
   };
 
   return (
     <div className="mock-image-modal">
-      <ImageModalHeader active={mode} modes={allModes} onChange={onChangeMode} />
+      <ImageModalHeader active={modeLabels[modeKeys.indexOf(mode)]} modes={modeLabels} onChange={onChangeMode} />
       <div className="mock-image-modal-body">
         <div className="mock-left-scroll">
           <div key={mode} className="mock-icon-dialog-images">
